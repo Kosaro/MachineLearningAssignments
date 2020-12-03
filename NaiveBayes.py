@@ -1,4 +1,9 @@
 # Naive Bayes Assignment
+# I initially wrote and polished this assignment using numpy, but when I tested it on linprog
+# a few hours before the due date I was surprised
+# to find that numpy was not installed. (It is for python 2, but not python 3)
+# So I hastily rewrote it to work without numpy. I apologize for messy code in this file, I also submitted the numpy
+# file so that you can view the clean version
 # Oscar Kosar-Kosarewicz
 # opk18
 # 11/20/2020
@@ -9,11 +14,6 @@ from collections import Counter
 
 
 def main(train_path, test_path):
-    train_path = 'data/NaiveBayes/breast_cancer.train.txt'
-    test_path = 'data/NaiveBayes/breast_cancer.test.txt'
-
-    train_path = 'data/NaiveBayes/led.train.txt'
-    test_path = 'data/NaiveBayes/led.test.txt'
 
     # scan files to get number of attributes and number of lines
     train_attributes, train_lines = scan_file(train_path)
@@ -25,7 +25,7 @@ def main(train_path, test_path):
     test_labels, test_x = read_data(test_path, num_attributes, test_lines)
 
     # Train model
-    class_weights = train(train_x, train_labels, train_lines)
+    class_weights = train(train_x, train_labels)
 
     # predict labels
     predicted_labels = predict(train_x, class_weights)
@@ -70,7 +70,7 @@ def read_data(filepath, num_attributes, num_lines):
     return labels, attributes
 
 
-def train(data, labels, num_labels):
+def train(data, labels):
     """
     Trains a Naive Bayes classifier using Laplace smoothing.
 
@@ -79,9 +79,10 @@ def train(data, labels, num_labels):
     :return: A 2 dimensional list containing dictionaries of probabilities for each
     attribute for each class. shape is num_classes x num_attributes.
     """
+    counter = Counter(labels)
     class_weights = []
     # loop over classes/labels
-    for label in [-1,1]:
+    for label, num_labels in counter.items():
         num_labels += 2
         for l in labels:
             if l == labels:
@@ -93,7 +94,6 @@ def train(data, labels, num_labels):
             for j in range(len(labels)):
                 if labels[j] == label:
                     counter[data[j][i]] += 1 / num_labels
-            #print(counter)
             attribute_weights.append(counter)
         class_weights.append(attribute_weights)
     return class_weights
@@ -109,20 +109,13 @@ def predict(data, class_weights):
     attribute for each class. shape is num_classes x num_attributes.
     :return: predicted labels
     """
-    #probabilities = np.ndarray((data.shape[0], len(class_weights)))
-    #probabilities = [[0]*len(class_weights)]*len(data)
     probabilities = initialize_matrix(len(data), len(class_weights))
     for i, row in enumerate(data):
         for r, label_weights in enumerate(class_weights):
-            #print(i, row)
-            #probabilities[i] = 0
             probabilities[i][r] = product([label_weights[j].get(value, 0) for j, value in enumerate(row)])
-    #result = np.argmax(probabilities, axis=1)
-    #result[result == 0] = -1
     result = []
     for l,r in probabilities:
-        #print(l,r)
-        if l > r:
+        if l < r:
             result.append(-1)
         else:
             result.append(1)
@@ -143,8 +136,6 @@ def print_summary(true_y, predicted_y):
     :param predicted_y: predicted labels from model
     :return:
     """
-    matches = predicted_y[true_y == predicted_y]
-    differences = predicted_y[true_y != predicted_y]
     true_positives = 0
     true_negatives = 0
     false_positives = 0
@@ -174,5 +165,4 @@ def initialize_matrix(x,y):
     return result
 
 if __name__ == '__main__':
-    #main(argv[1], argv[2])
-    main(0,0)
+    main(argv[1], argv[2])

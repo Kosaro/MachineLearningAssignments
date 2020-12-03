@@ -1,6 +1,7 @@
 # Naive Bayes Assignment
 # Oscar Kosar-Kosarewicz
 # opk18
+# Numpy version of the assignmnet. I wrote this before realizing linprog did not have numpy installed.
 # 11/20/2020
 
 from sys import argv
@@ -9,11 +10,6 @@ import numpy as np
 
 
 def main(train_path, test_path):
-    # train_path = 'data/NaiveBayes/breast_cancer.train.txt'
-    # test_path = 'data/NaiveBayes/breast_cancer.test.txt'
-
-    train_path = 'data/NaiveBayes/led.train.txt'
-    test_path = 'data/NaiveBayes/led.test.txt'
 
     # scan files to get number of attributes and number of lines
     train_attributes, train_lines = scan_file(train_path)
@@ -130,5 +126,4 @@ def print_summary(true_y, predicted_y):
 
 
 if __name__ == '__main__':
-    #main(argv[1], argv[2])
-    main(0,0)
+    main(argv[1], argv[2])
